@@ -1,0 +1,525 @@
+<div class="dashboard-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <span style="
+        display:inline-block;
+        width:10px;
+        height:10px;
+        background:var(--color-primary);
+        border-radius:50%;
+        box-shadow:0 0 10px var(--color-primary-glow);">
+      </span>
+
+      <span class="gradient-text" style="font-weight:800;">
+        LeaveManagement
+      </span>
+    </div>
+
+    <ul class="sidebar-menu">
+
+      <li>
+        <button
+          class="sidebar-link"
+          [class.active]="activeTab() === 'apply'"
+          (click)="changeTab('apply')">
+          Apply Leave
+        </button>
+      </li>
+
+      <li>
+        <button
+          class="sidebar-link"
+          [class.active]="activeTab() === 'balance'"
+          (click)="changeTab('balance')">
+          Leave Balance
+        </button>
+      </li>
+
+      <li>
+        <button
+          class="sidebar-link"
+          [class.active]="activeTab() === 'history'"
+          (click)="changeTab('history')">
+          Leave History
+        </button>
+      </li>
+
+    </ul>
+
+    <div class="sidebar-user">
+
+      <div class="sidebar-user-info">
+        <span class="sidebar-user-name">
+          {{ currentUser()?.name }}
+        </span>
+
+        <span class="sidebar-user-role">
+          {{ currentUser()?.role }}
+        </span>
+      </div>
+
+      <button
+        class="btn btn-glass btn-sm"
+        (click)="logout()">
+        Logout
+      </button>
+
+    </div>
+
+  </aside>
+
+  <!-- Main Panel -->
+  <main class="main-panel animate-fade-in">
+
+    <header class="panel-header">
+
+      <div>
+        <h1 class="panel-title">
+          Employee Portal
+        </h1>
+
+        <p class="panel-subtitle">
+          Welcome back, {{ currentUser()?.name }}
+        </p>
+      </div>
+
+      <div style="display:flex;gap:1rem;align-items:center;">
+        <span
+          class="badge badge-approved"
+          style="padding:0.5rem 1rem;font-weight:500;">
+          Active Session
+        </span>
+      </div>
+
+    </header>
+
+    <!-- Leave Balance -->
+    <!-- Leave Balance -->
+@if (activeTab() === 'balance') {
+
+<section>
+
+  <div style="margin-bottom:2rem;">
+    <h2 style="
+      font-size:1.5rem;
+      margin-bottom:0.5rem;
+      color:var(--color-primary);">
+      My Leave Balance
+    </h2>
+
+    <p class="text-muted">
+      Available leave balance for the current year.
+    </p>
+  </div>
+
+  @if (leaveBalances.length > 0) {
+
+    <div class="balance-grid">
+
+      @for (bal of leaveBalances; track bal.leaveTypeId) {
+
+        <div class="glass-card balance-card">
+
+          <span class="balance-label">
+            {{ bal.leaveTypeName }}
+          </span>
+
+          <div
+            style="
+              font-size:2rem;
+              font-weight:700;
+              color:var(--color-primary);
+              margin-top:1rem;">
+
+            {{ bal.allowed - bal.used }}
+
+            <span style="
+              font-size:1rem;
+              color:var(--text-muted);
+              font-weight:400;">
+
+              / {{ bal.allowed }} Days
+
+            </span>
+
+          </div>
+
+          <div
+            style="
+              font-size:0.85rem;
+              color:var(--text-muted);
+              margin-top:0.5rem;">
+
+            Used: {{ bal.used }} days
+
+          </div>
+
+          <div
+            style="
+              height:8px;
+              background:#e5e7eb;
+              border-radius:10px;
+              margin-top:15px;">
+
+            <div
+              style="
+                height:100%;
+                background:#2563eb;
+                border-radius:10px;"
+              [style.width.%]="((bal.allowed - bal.used) / bal.allowed) * 100">
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="glass-card">
+
+      <div style="
+        text-align:center;
+        padding:2rem;
+        color:#6b7280;">
+
+        Loading leave balances...
+
+      </div>
+
+    </div>
+
+  }
+
+  <div
+    class="glass-card"
+    style="margin-top:2rem;">
+
+    <h3 style="
+      margin-bottom:1rem;
+      color:var(--color-primary);">
+      Quick Guide
+    </h3>
+
+    <ul style="
+      color:var(--text-muted);
+      padding-left:1.5rem;
+      display:flex;
+      flex-direction:column;
+      gap:0.5rem;">
+
+      <li>Apply leave before your planned absence.</li>
+      <li>Manager approval is required for leave requests.</li>
+      <li>Pending requests can be cancelled anytime.</li>
+
+    </ul>
+
+  </div>
+
+</section>
+
+}
+
+    <!-- Apply Leave -->
+    @if (activeTab() === 'apply') {
+
+      <section style="max-width:700px;">
+
+        <div style="margin-bottom:2rem;">
+          <h2 style="
+            font-size:1.5rem;
+            margin-bottom:0.5rem;
+            color:var(--color-primary);">
+            Apply For Leave
+          </h2>
+
+          <p class="text-muted">
+            Submit a new leave request.
+          </p>
+        </div>
+
+        <div class="glass-card">
+
+          @if (successMessage) {
+
+  <div
+    style="
+      background: linear-gradient(135deg,#dcfce7,#bbf7d0);
+      border: 1px solid #22c55e;
+      color: #166534;
+      padding: 16px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(34,197,94,0.15);
+    ">
+
+    <span style="font-size:24px;">
+      ✅
+    </span>
+
+    <div>
+      <div style="font-size:16px;">
+        Leave Applied Successfully
+      </div>
+
+      <div style="
+        font-size:13px;
+        font-weight:400;
+        color:#15803d;">
+        Your request has been submitted and is awaiting manager approval.
+      </div>
+    </div>
+
+  </div>
+
+}
+
+          @if (errorMessage) {
+            <div class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+          }
+
+          <form (ngSubmit)="applyLeave()">
+
+            <div class="form-group">
+              <label class="form-label">
+                Leave Type
+              </label>
+
+              <select
+                class="form-control"
+                name="leaveTypeId"
+                [(ngModel)]="leaveTypeId">
+
+                <option [value]="1">
+                  Casual Leave
+                </option>
+
+                <option [value]="2">
+                  Sick Leave
+                </option>
+
+                <option [value]="3">
+                  Earned Leave
+                </option>
+
+              </select>
+            </div>
+
+            <div style="
+              display:grid;
+              grid-template-columns:1fr 1fr;
+              gap:1rem;">
+
+              <div class="form-group">
+                <label class="form-label">
+                  Start Date
+                </label>
+
+                <input
+                  type="date"
+                  class="form-control"
+                  name="startDate"
+                  [(ngModel)]="startDate"
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  End Date
+                </label>
+
+                <input
+                  type="date"
+                  class="form-control"
+                  name="endDate"
+                  [(ngModel)]="endDate"
+                  required>
+              </div>
+
+            </div>
+
+            <div class="form-group">
+
+              <label class="form-label">
+                Reason
+              </label>
+
+              <textarea
+                rows="4"
+                class="form-control"
+                name="reason"
+                [(ngModel)]="reason"
+                placeholder="Enter reason for leave"
+                required>
+              </textarea>
+
+            </div>
+
+            <div style="
+              display:flex;
+              gap:1rem;
+              margin-top:1.5rem;">
+
+              <button type="submit" class="btn btn-primary">
+  Apply Leave
+</button>
+
+              <button
+                type="button"
+                class="btn btn-glass"
+                (click)="activeTab.set('balance')">
+                Cancel
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </section>
+
+    }
+
+    <!-- Leave History -->
+    @if (activeTab() === 'history') {
+
+      <section>
+
+        <div style="margin-bottom:2rem;">
+          <h2 style="
+            font-size:1.5rem;
+            margin-bottom:0.5rem;
+            color:var(--color-primary);">
+            Leave History & Status
+          </h2>
+
+          <p class="text-muted">
+            View all submitted leave requests.
+          </p>
+        </div>
+
+        <div class="glass-card">
+
+          @if (leaveHistory.length === 0) {
+
+            <div style="
+              text-align:center;
+              padding:3rem 1rem;
+              color:var(--text-muted);">
+
+              <span style="
+                font-size:2.5rem;
+                display:block;
+                margin-bottom:1rem;">
+                📭
+              </span>
+
+              <p>No leave requests found.</p>
+
+            </div>
+
+          } @else {
+
+            <div class="table-responsive">
+
+              <table class="table">
+
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Leave Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  @for (req of leaveHistory; track req.id) {
+
+                    <tr>
+
+                      <td>{{ req.id }}</td>
+
+                      <td>
+                        {{ req.leaveType?.leaveName }} 
+                      </td>
+
+                      <td>
+                        {{ req.startDate }}
+                      </td>
+
+                      <td>
+                        {{ req.endDate }}
+                      </td>
+
+                      <td>
+                        {{ req.numberOfDays }}
+                      </td>
+
+                      <td>
+                        <span class="badge">
+                          {{ req.status }}
+                        </span>
+                      </td>
+
+                      <td>
+                        {{ req.reason }}
+                      </td>
+
+                      <td>
+
+                        @if (req.status === 'PENDING') {
+
+                          <button
+                            class="btn btn-danger btn-sm"
+                            (click)="cancelLeave(req.id)">
+                            Cancel
+                          </button>
+
+                        } @else {
+
+                          {{ req.managerComments }}
+
+                        }
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+
+  </main>
+
+</div>
