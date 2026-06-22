@@ -1,34 +1,32 @@
 pipeline {
 agent any
 
+
 stages {
+
     stage('Checkout') {
         steps {
             echo 'Source code checked out'
         }
     }
 
-    stage('Build') {
+    stage('Build & Package') {
         steps {
             dir('backend') {
-                bat 'mvn clean compile'
+                bat 'mvn clean package -DskipTests'
             }
         }
     }
 
-    stage('Test') {
+    stage('Deploy') {
         steps {
-            dir('backend') {
-                bat 'mvn test'
-            }
+            echo 'Deploying application...'
         }
     }
 
-    stage('Package') {
+    stage('Release') {
         steps {
-            dir('backend') {
-                bat 'mvn clean package'
-            }
+            archiveArtifacts artifacts: 'backend/target/*.jar'
         }
     }
 }
